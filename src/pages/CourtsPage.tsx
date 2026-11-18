@@ -1,4 +1,5 @@
 import CtaLink from '@/components/CtaLink';
+import CoachesSection from '@/components/CoachesSection';
 import FacilityHighlights from '@/components/FacilityHighlights';
 import PageHero from '@/components/PageHero';
 import Reveal from '@/components/Reveal';
@@ -49,6 +50,8 @@ export default function CourtsPage() {
           </div>
         </div>
       </section>
+
+      <CoachesSection compact tone="white" />
     </>
   );
 }

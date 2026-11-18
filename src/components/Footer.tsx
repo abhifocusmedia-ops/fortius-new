@@ -4,6 +4,7 @@ import Logo from '@/components/Logo';
 import { BOOKING_URL, REFER_URL } from '@/data/links';
 
 const QUICK_LINKS = [
+  { label: 'About', to: '/about' },
   { label: 'Courts', to: '/courts' },
   { label: 'Membership', to: '/membership' },
   { label: 'Coaching', to: '/coaching' },

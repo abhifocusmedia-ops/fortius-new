@@ -1,4 +1,5 @@
 import CtaLink from '@/components/CtaLink';
+import CoachesSection from '@/components/CoachesSection';
 import PageHero from '@/components/PageHero';
 import Reveal from '@/components/Reveal';
 import { BOOKING_URL } from '@/data/links';
@@ -54,6 +55,8 @@ export default function CoachingPage() {
           </div>
         </div>
       </section>
+
+      <CoachesSection tone="soft" />
     </>
   );
 }

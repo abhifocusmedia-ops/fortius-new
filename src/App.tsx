@@ -4,6 +4,7 @@ import CoachingPage from '@/pages/CoachingPage';
 import CoachingSportPage from '@/pages/CoachingSportPage';
 import CourtsPage from '@/pages/CourtsPage';
 import DealsPage from '@/pages/DealsPage';
+import AboutPage from '@/pages/AboutPage';
 import HomePage from '@/pages/HomePage';
 import MembershipPage from '@/pages/MembershipPage';
 import NotFoundPage from '@/pages/NotFoundPage';
@@ -18,6 +19,7 @@ function App() {
       <Routes>
         <Route element={<SiteLayout />}>
           <Route index element={<HomePage />} />
+          <Route path="about" element={<AboutPage />} />
           <Route path="courts" element={<CourtsPage />} />
           <Route path="courts/:sport" element={<SportPage />} />
           <Route path="coaching" element={<CoachingPage />} />

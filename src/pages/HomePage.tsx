@@ -1,5 +1,7 @@
-import { ArrowRight, Dumbbell, Gift, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowRight, ChevronLeft, ChevronRight, Dumbbell, Gift, Sparkles } from 'lucide-react';
 import CtaLink from '@/components/CtaLink';
+import CoachesSection from '@/components/CoachesSection';
 import FacilityHighlights from '@/components/FacilityHighlights';
 import Reveal from '@/components/Reveal';
 import SportCard from '@/components/SportCard';
@@ -12,41 +14,113 @@ const STATS = [
   { value: '10', label: 'Table Tennis Tables' },
 ];
 
+const HERO_SLIDES = [
+  {
+    eyebrow: 'Badminton',
+    title: 'Every rally starts here.',
+    description: 'Train, play, and compete on 24 indoor badminton courts built for your next level.',
+    image: 'https://images.pexels.com/photos/8007494/pexels-photo-8007494.jpeg?auto=compress&cs=tinysrgb&h=1200&w=2000',
+    primary: { label: 'Book a court', to: '/courts/badminton' },
+    secondary: { label: 'Explore coaching', to: '/coaching/badminton' },
+  },
+  {
+    eyebrow: 'Pickleball',
+    title: 'Make your next move.',
+    description: 'Discover tournament-grade pickleball courts for casual games, coaching, and competition.',
+    image: 'https://images.pexels.com/photos/32975182/pexels-photo-32975182.jpeg?auto=compress&cs=tinysrgb&h=1200&w=2000',
+    primary: { label: 'Explore pickleball', to: '/courts/pickleball' },
+    secondary: { label: 'View memberships', to: '/membership' },
+  },
+  {
+    eyebrow: 'Fortius Sports Academy',
+    title: 'Play. Train. Compete.',
+    description: 'A high-performance home for badminton, pickleball, and table tennis in the Alpharetta area.',
+    image: 'https://images.pexels.com/photos/32843102/pexels-photo-32843102.jpeg?auto=compress&cs=tinysrgb&h=1200&w=2000',
+    primary: { label: 'Join us', to: '/membership' },
+    secondary: { label: 'Meet our coaches', to: '/coaching' },
+  },
+];
+
 export default function HomePage() {
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const slide = HERO_SLIDES[activeSlide];
+
+  useEffect(() => {
+    if (isPaused) return undefined;
+    const timer = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
+    }, 6500);
+    return () => window.clearInterval(timer);
+  }, [isPaused]);
+
+  const goToSlide = (index: number) => {
+    setActiveSlide((index + HERO_SLIDES.length) % HERO_SLIDES.length);
+  };
+
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-brand-900">
-        <img
-          src="https://images.pexels.com/photos/8007494/pexels-photo-8007494.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-          alt="Two players on an indoor badminton court"
-          className="absolute inset-0 -z-10 h-full w-full object-cover opacity-55"
-        />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-brand-900 via-brand-900/70 to-brand-900/30" />
-        <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-7xl flex-col justify-center px-4 py-24 sm:px-6 lg:px-8">
-          <div className="max-w-3xl animate-fade-up">
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-accent-100 backdrop-blur">
+      <section
+        className="relative isolate min-h-[calc(100vh-5rem)] overflow-hidden bg-brand-900 text-white"
+        aria-roledescription="carousel"
+        aria-label="Fortius highlights"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        {HERO_SLIDES.map((item, index) => (
+          <img
+            key={item.title}
+            src={item.image}
+            alt=""
+            aria-hidden="true"
+            className={`absolute inset-0 -z-20 h-full w-full object-cover transition-all duration-1000 ease-out ${index === activeSlide ? 'scale-100 opacity-100' : 'scale-105 opacity-0'}`}
+          />
+        ))}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-900 via-brand-900/75 to-brand-900/15" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-brand-900 via-transparent to-brand-900/35" />
+        <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-7xl flex-col justify-between px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-accent-100 backdrop-blur">
               <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-              Brand-new facility
-            </p>
-            <h1 className="mt-6 font-display text-5xl font-bold uppercase leading-[1.05] tracking-wide text-white sm:text-6xl lg:text-7xl">
-              Fortius Sports Academy!
-            </h1>
-            <p className="mt-6 max-w-2xl text-base leading-relaxed text-brand-100 sm:text-lg">
-              A high-performance space to play, train, and compete. 15 badminton courts and 4 pickleball courts at the
-              Game & Grill location, plus 9 more badminton courts and table tennis tables at Atlanta Recreation Club
-              (ARC).
-            </p>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <CtaLink to="/membership" variant="lime">
-                Join Us
-              </CtaLink>
-              <CtaLink to="/coaching" variant="outline-light">
-                Get Trained
-              </CtaLink>
-              <CtaLink to={BOOKING_URL} variant="lime">
-                Book Now!
-              </CtaLink>
+              Built for your next level
+            </span>
+            <div className="hidden items-center gap-2 sm:flex">
+              <span className="font-display text-sm font-bold tracking-[0.2em] text-white/70">{String(activeSlide + 1).padStart(2, '0')}</span>
+              <span className="h-px w-10 bg-white/40" />
+              <span className="font-display text-sm font-bold tracking-[0.2em] text-white/50">{String(HERO_SLIDES.length).padStart(2, '0')}</span>
             </div>
+          </div>
+
+          <div className="grid items-end gap-12 lg:grid-cols-[minmax(0,1fr)_auto]">
+            <div key={slide.title} className="max-w-3xl animate-fade-up">
+              <p className="font-display text-sm font-bold uppercase tracking-[0.3em] text-lime-400">{slide.eyebrow}</p>
+              <h1 className="mt-5 font-display text-5xl font-bold uppercase leading-[1.02] tracking-wide text-white sm:text-6xl lg:text-8xl">{slide.title}</h1>
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-brand-100 sm:text-lg">{slide.description}</p>
+              <div className="mt-9 flex flex-wrap gap-3">
+                <CtaLink to={slide.primary.to} variant="lime">{slide.primary.label}</CtaLink>
+                <CtaLink to={slide.secondary.to} variant="outline-light">{slide.secondary.label}</CtaLink>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 self-end">
+              <button type="button" onClick={() => goToSlide(activeSlide - 1)} className="flex h-12 w-12 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white hover:text-brand-900" aria-label="Previous slide">
+                <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+              </button>
+              <button type="button" onClick={() => goToSlide(activeSlide + 1)} className="flex h-12 w-12 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur transition-colors hover:bg-white hover:text-brand-900" aria-label="Next slide">
+                <ChevronRight className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-8 border-t border-white/20 pt-5">
+            <div className="flex items-center gap-2" role="tablist" aria-label="Choose hero slide">
+              {HERO_SLIDES.map((item, index) => (
+                <button key={item.title} type="button" onClick={() => goToSlide(index)} className={`h-1.5 rounded-full transition-all duration-500 ${index === activeSlide ? 'w-12 bg-lime-400' : 'w-5 bg-white/45 hover:bg-white/80'}`} role="tab" aria-selected={index === activeSlide} aria-label={`Go to slide ${index + 1}`} />
+              ))}
+            </div>
+            <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="hidden text-xs font-semibold uppercase tracking-[0.22em] text-white/75 transition-colors hover:text-lime-300 sm:block">
+              Book a session <ArrowRight className="ml-2 inline h-4 w-4" aria-hidden="true" />
+            </a>
           </div>
         </div>
       </section>
@@ -159,6 +233,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <CoachesSection compact tone="dark" />
 
       <section className="bg-brand-50/60 py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
