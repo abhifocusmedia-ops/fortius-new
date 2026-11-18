@@ -1,15 +1,35 @@
 import { useEffect, useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, X } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import CtaLink from '@/components/CtaLink';
 import Logo from '@/components/Logo';
 import { BOOKING_URL } from '@/data/links';
 
-const NAV_ITEMS = [
+const SPORT_ITEMS = [
+  { label: 'Badminton', slug: 'badminton' },
+  { label: 'Pickleball', slug: 'pickleball' },
+  { label: 'Table Tennis', slug: 'table-tennis' },
+] as const;
+
+type NavItem = {
+  label: string;
+  to: string;
+  children?: readonly { label: string; to: string }[];
+};
+
+const NAV_ITEMS: NavItem[] = [
   { label: 'Home', to: '/' },
-  { label: 'Courts', to: '/courts' },
+  {
+    label: 'Courts',
+    to: '/courts',
+    children: SPORT_ITEMS.map((sport) => ({ ...sport, to: `/courts/${sport.slug}` })),
+  },
   { label: 'Membership', to: '/membership' },
-  { label: 'Coaching', to: '/coaching' },
+  {
+    label: 'Coaching',
+    to: '/coaching',
+    children: SPORT_ITEMS.map((sport) => ({ ...sport, label: `${sport.label} Coaching`, to: `/coaching/${sport.slug}` })),
+  },
   { label: 'Pro Shop', to: '/pro-shop' },
   { label: 'Refer & Win', to: '/refer' },
   { label: 'Deal Zone', to: '/deals' },
@@ -18,6 +38,7 @@ const NAV_ITEMS = [
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openMobileMenu, setOpenMobileMenu] = useState<string | null>(null);
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 16);
@@ -42,9 +63,36 @@ export default function Header() {
 
         <nav className="hidden items-center gap-6 xl:flex" aria-label="Main">
           {NAV_ITEMS.map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.to === '/'} className={linkClass}>
-              {item.label}
-            </NavLink>
+            item.children ? (
+              <div key={item.to} className="group relative py-2">
+                <NavLink
+                  to={item.to}
+                  className={({ isActive }) => `${linkClass({ isActive })} inline-flex items-center gap-1`}
+                >
+                  {item.label}
+                  <ChevronDown className="h-4 w-4 transition-transform duration-200 group-hover:rotate-180 group-focus-within:rotate-180" />
+                </NavLink>
+                <div className="invisible absolute left-1/2 top-full z-50 w-56 -translate-x-1/2 translate-y-2 rounded-2xl border border-brand-100 bg-white p-2 opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                  {item.children.map((child) => (
+                    <NavLink
+                      key={child.to}
+                      to={child.to}
+                      className={({ isActive }) =>
+                        `block rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+                          isActive ? 'bg-accent-50 text-accent-700' : 'text-brand-800 hover:bg-brand-50 hover:text-accent-700'
+                        }`
+                      }
+                    >
+                      {child.label}
+                    </NavLink>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <NavLink key={item.to} to={item.to} end={item.to === '/'} className={linkClass}>
+                {item.label}
+              </NavLink>
+            )
           ))}
         </nav>
 
@@ -75,19 +123,62 @@ export default function Header() {
         <div className="min-h-0">
           <nav className="flex flex-col gap-1 px-4 py-4 sm:px-6" aria-label="Mobile">
             {NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === '/'}
-                onClick={() => setIsMenuOpen(false)}
-                className={({ isActive }) =>
-                  `rounded-xl px-4 py-3 text-base font-semibold transition-colors ${
-                    isActive ? 'bg-accent-50 text-accent-700' : 'text-brand-800 hover:bg-brand-50'
-                  }`
-                }
-              >
-                {item.label}
-              </NavLink>
+              item.children ? (
+                <div key={item.to}>
+                  <div className="flex items-center rounded-xl transition-colors hover:bg-brand-50">
+                    <NavLink
+                      to={item.to}
+                      onClick={() => setIsMenuOpen(false)}
+                      className={({ isActive }) =>
+                        `flex-1 px-4 py-3 text-base font-semibold ${isActive ? 'text-accent-700' : 'text-brand-800'}`
+                      }
+                    >
+                      {item.label}
+                    </NavLink>
+                    <button
+                      type="button"
+                      aria-expanded={openMobileMenu === item.to}
+                      aria-label={`Show ${item.label} pages`}
+                      onClick={() => setOpenMobileMenu((open) => (open === item.to ? null : item.to))}
+                      className="mr-2 rounded-lg p-2 text-brand-700"
+                    >
+                      <ChevronDown className={`h-5 w-5 transition-transform ${openMobileMenu === item.to ? 'rotate-180' : ''}`} />
+                    </button>
+                  </div>
+                  {openMobileMenu === item.to && (
+                    <div className="ml-4 border-l border-brand-100 pl-3">
+                      {item.children.map((child) => (
+                        <NavLink
+                          key={child.to}
+                          to={child.to}
+                          onClick={() => setIsMenuOpen(false)}
+                          className={({ isActive }) =>
+                            `block rounded-xl px-4 py-2.5 text-sm font-semibold ${
+                              isActive ? 'text-accent-700' : 'text-brand-700 hover:bg-brand-50'
+                            }`
+                          }
+                        >
+                          {child.label}
+                        </NavLink>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === '/'}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `rounded-xl px-4 py-3 text-base font-semibold transition-colors ${
+                      isActive ? 'bg-accent-50 text-accent-700' : 'text-brand-800 hover:bg-brand-50'
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              )
             ))}
             <div className="mt-3 pb-2">
               <CtaLink to={BOOKING_URL} variant="lime" className="w-full">
